@@ -14,12 +14,12 @@ services:
       - "traefik.enable=true"
 
       # Router for HTTPS
-      - "traefik.http.routers.django.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
-      - "traefik.http.routers.django.entrypoints=websecure"
-      - "traefik.http.routers.django.tls.certresolver=myresolver"
+      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
+      - "traefik.http.routers.dbslusser.entrypoints=websecure"
+      - "traefik.http.routers.dbslusser.tls.certresolver=myresolver"
 
       # Service settings
-      - "traefik.http.services.django.loadbalancer.server.port=8000"
+      - "traefik.http.services.dbslusser.loadbalancer.server.port=8000"
     networks:
       - default
       - web
@@ -32,8 +32,6 @@ services:
     container_name: dbslusser-postgres
     volumes:
       - dbslusser_postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     env_file:
       - .env
     networks:
