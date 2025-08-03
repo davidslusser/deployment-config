@@ -1,7 +1,7 @@
 services:
   django:
     container_name: dbslusser-django
-    image: ghcr.io/spokanetech/dbslusserweb:latest
+    image: ghcr.io/davidslusser/web:latest
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile
