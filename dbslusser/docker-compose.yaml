@@ -32,6 +32,8 @@ services:
     container_name: dbslusser-postgres
     volumes:
       - dbslusser_postgres:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"      
     env_file:
       - .env
     networks:
