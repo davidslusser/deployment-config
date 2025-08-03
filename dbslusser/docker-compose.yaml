@@ -1,0 +1,50 @@
+services:
+  django:
+    container_name: dbslusser-django
+    image: ghcr.io/spokanetech/dbslusserweb:latest
+    build:
+      context: ../..
+      dockerfile: src/docker/Dockerfile
+    env_file:
+      - .env
+    command: "./entrypoint.sh"
+    expose:
+      - "8000"
+    labels:
+      - "traefik.enable=true"
+
+      # Router for HTTPS
+      - "traefik.http.routers.django.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
+      - "traefik.http.routers.django.entrypoints=websecure"
+      - "traefik.http.routers.django.tls.certresolver=myresolver"
+
+      # Service settings
+      - "traefik.http.services.django.loadbalancer.server.port=8000"
+    networks:
+      - default
+      - web
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    container_name: dbslusser-postgres
+    volumes:
+      - dbslusser_postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    networks:
+      - default
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+  web:
+    external: true
+
+volumes:
+  dbslusser_postgres:
