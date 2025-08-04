@@ -12,19 +12,10 @@ services:
       - "8000"
     labels:
       - "traefik.enable=true"
-
-      # --- Corrected Labels ---
-      # 1. Define the router
       - "traefik.http.routers.spokanepython.rule=Host(`davidslusser.website`) || Host(`www.davidslusser.website`)"
       - "traefik.http.routers.spokanepython.entrypoints=websecure"
       - "traefik.http.routers.spokanepython.tls.certresolver=myresolver"
-      
-      # 2. Explicitly link the router to the service
-      - "traefik.http.routers.spokanepython.service=spokanepython-svc"
-
-      # 3. Define the service
-      - "traefik.http.services.spokanepython-svc.loadbalancer.server.port=8000"
-      # --- End of Correction ---
+      - "traefik.http.services.spokanepython.loadbalancer.server.port=8000"
 
     networks:
       - default
