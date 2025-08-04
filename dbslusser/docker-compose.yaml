@@ -15,7 +15,7 @@ services:
 
       # --- Corrected Labels ---
       # 1. Define the router
-      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
+      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.space`) || Host(`www.dbslusser.space`)"
       - "traefik.http.routers.dbslusser.entrypoints=websecure"
       - "traefik.http.routers.dbslusser.tls.certresolver=myresolver"
 
