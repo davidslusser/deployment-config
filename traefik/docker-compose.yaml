@@ -1,46 +1,44 @@
-networks:
-  web:
-    external: true
-
 services:
   traefik:
-    image: traefik:v3.0
     container_name: traefik
-    command:
-      - "--api.dashboard=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-
-      # Entry points
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-
-      # Redirect HTTP to HTTPS
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-
-      # Let's Encrypt
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.email=dbslusser@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-
+    image: traefik:v3.5
     ports:
-      - "80:80"
-      - "443:443"
-
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "letsencrypt:/letsencrypt"
-
+      - 80:80
+      - 443:443
     networks:
-      - web
-    restart: unless-stopped
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    command:
+      - --api.dashboard=true
+      - --log.level=DEBUG # Keep this for now for continued debugging
+      - --accesslog=true
+      - --providers.docker.network=proxy
+      - --providers.docker.exposedByDefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entryPoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.asDefault=true
+      - --entrypoints.websecure.http.tls.certresolver=myresolver # <-- This is the important one for entrypoint
+      - --certificatesresolvers.myresolver.acme.email=dbslusser@gmail.com
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.myresolver.acme.tlschallenge=true
+      # Uncomment the next line if you want to use the staging environment for testing
+      # - --certificatesresolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 
     labels:
-      - "traefik.enable=true"
+      - traefik.enable=true
+        #- traefik.http.routers.mydashboard.rule=Host(`traefik.davidslusser.website`)
+        #- traefik.http.routers.mydashboard.service=api@internal
+        #- traefik.http.routers.mydashboard.middlewares=myauth
 
-      # Dashboard route
+        # - traefik.http.routers.traefik.rule=Host(`traefik.davidslusser.website`)
+        #- traefik.http.routers.traefik.service=api@internal
+        #- traefik.http.routers.traefik.tls.certresolver=myresolver # <--- REMOVE THIS LINE
+        #- traefik.http.routers.traefik.middlewares=traefik-auth@docker
+        #     - traefik.http.middlewares.myauth.basicauth.users=${TRAEFIK_DASH_AUTH}
       - "traefik.http.routers.traefik.rule=Host(`traefik.davidslusser.website`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.entrypoints=websecure"
@@ -49,5 +47,10 @@ services:
       - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASH_AUTH}"
       - "traefik.http.routers.traefik.middlewares=traefik-auth"
 
+networks:
+  proxy:
+    name: proxy
+
 volumes:
   letsencrypt:
+    name: letsencrypt

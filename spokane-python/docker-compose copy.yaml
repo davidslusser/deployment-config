@@ -13,13 +13,13 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.spokanepython.rule=Host(`davidslusser.website`) || Host(`www.davidslusser.website`)"
+      - "traefik.http.routers.spokanepython.entrypoints=websecure"
+      - "traefik.http.routers.spokanepython.tls.certresolver=myresolver"
       - "traefik.http.services.spokanepython.loadbalancer.server.port=8000"
-      - "traefik.http.routers.spokanepython.entrypoints=websecure" # Ensure this uses websecure
-        #- "traefik.http.routers.spokanepython.tls.certresolver=myresolver"
 
     networks:
       - default
-      - proxy
+      - web
     depends_on:
       - db
     restart: unless-stopped
@@ -40,10 +40,9 @@ services:
 networks:
   default:
     driver: bridge
-      #  web:
-      # external: true
-  proxy:
-    name: proxy
+  web:
+    external: true
 
 volumes:
   spokanepython_postgres:
+
