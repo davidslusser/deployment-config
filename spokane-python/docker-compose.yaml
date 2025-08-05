@@ -2,6 +2,7 @@ services:
   django:
     container_name: spokanepython-django
     image: ghcr.io/spokanetech/spokanepythonweb:latest
+    pull_policy: always
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile
@@ -14,8 +15,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.spokanepython.rule=Host(`davidslusser.website`) || Host(`www.davidslusser.website`)"
       - "traefik.http.services.spokanepython.loadbalancer.server.port=8000"
-      - "traefik.http.routers.spokanepython.entrypoints=websecure" # Ensure this uses websecure
-        #- "traefik.http.routers.spokanepython.tls.certresolver=myresolver"
 
     networks:
       - default
@@ -40,8 +39,6 @@ services:
 networks:
   default:
     driver: bridge
-      #  web:
-      # external: true
   proxy:
     name: proxy
 

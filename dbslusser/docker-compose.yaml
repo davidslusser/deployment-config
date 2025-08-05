@@ -2,6 +2,7 @@ services:
   django:
     container_name: dbslusser-django
     image: ghcr.io/davidslusser/web:latest
+    pull_policy: always
     build:
       context: ../..
       dockerfile: src/docker/Dockerfile
@@ -13,13 +14,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.space`) || Host(`www.dbslusser.space`)"
-      - "traefik.http.routers.dbslusser.entrypoints=websecure"
-      - "traefik.http.routers.dbslusser.tls.certresolver=myresolver"
       - "traefik.http.services.dbslusser.loadbalancer.server.port=8000"
 
     networks:
       - default
-      - web
+      - proxy
     depends_on:
       - db
     restart: unless-stopped
@@ -40,8 +39,8 @@ services:
 networks:
   default:
     driver: bridge
-  web:
-    external: true
+  proxy:
+    name: proxy
 
 volumes:
   dbslusser_postgres:

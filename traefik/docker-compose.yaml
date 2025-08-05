@@ -12,7 +12,7 @@ services:
       - letsencrypt:/letsencrypt
     command:
       - --api.dashboard=true
-      - --log.level=DEBUG # Keep this for now for continued debugging
+      - --log.level=DEBUG
       - --accesslog=true
       - --providers.docker.network=proxy
       - --providers.docker.exposedByDefault=false
@@ -20,32 +20,19 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entryPoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.asDefault=true
-      - --entrypoints.websecure.http.tls.certresolver=myresolver # <-- This is the important one for entrypoint
+      - --entrypoints.websecure.asDefault=true 
+      - --certificatesresolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.myresolver.acme.email=dbslusser@gmail.com
+      - --entrypoints.websecure.http.tls.certresolver=myresolver
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.myresolver.acme.tlschallenge=true
-      # Uncomment the next line if you want to use the staging environment for testing
-      # - --certificatesresolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 
     labels:
       - traefik.enable=true
-        #- traefik.http.routers.mydashboard.rule=Host(`traefik.davidslusser.website`)
-        #- traefik.http.routers.mydashboard.service=api@internal
-        #- traefik.http.routers.mydashboard.middlewares=myauth
-
-        # - traefik.http.routers.traefik.rule=Host(`traefik.davidslusser.website`)
-        #- traefik.http.routers.traefik.service=api@internal
-        #- traefik.http.routers.traefik.tls.certresolver=myresolver # <--- REMOVE THIS LINE
-        #- traefik.http.routers.traefik.middlewares=traefik-auth@docker
-        #     - traefik.http.middlewares.myauth.basicauth.users=${TRAEFIK_DASH_AUTH}
-      - "traefik.http.routers.traefik.rule=Host(`traefik.davidslusser.website`)"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
-      # Auth middleware for dashboard
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASH_AUTH}"
-      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - traefik.http.routers.traefik.rule=Host(`traefik.davidslusser.website`)
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls.certresolver=myresolver
+      - traefik.http.routers.traefik.middlewares=traefik-auth@docker
+      - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASH_AUTH}
 
 networks:
   proxy:
