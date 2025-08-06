@@ -1,7 +1,7 @@
 services:
   django:
-    container_name: spokanepython-django
-    image: ghcr.io/spokanetech/spokanepythonweb:latest
+    container_name: dbslusser-django
+    image: ghcr.io/davidslusser/web:latest
     pull_policy: always
     build:
       context: ../..
@@ -13,8 +13,8 @@ services:
       - "8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.spokanepython.rule=Host(`davidslusser.website`) || Host(`www.davidslusser.website`)"
-      - "traefik.http.services.spokanepython.loadbalancer.server.port=8000"
+      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.space`) || Host(`www.dbslusser.space`)"
+      - "traefik.http.services.dbslusser.loadbalancer.server.port=8000"
 
     networks:
       - default
@@ -25,11 +25,11 @@ services:
 
   db:
     image: postgres:17
-    container_name: spokanepython-postgres
+    container_name: dbslusser-postgres
     volumes:
-      - spokanepython_postgres:/var/lib/postgresql/data
+      - dbslusser_postgres:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5434:5432"      
     env_file:
       - .env
     networks:
@@ -43,4 +43,4 @@ networks:
     name: proxy
 
 volumes:
-  spokanepython_postgres:
+  dbslusser_postgres:
