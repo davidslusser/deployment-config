@@ -1,6 +1,6 @@
 services:
   django:
-    container_name: dbslusser-django
+    container_name: dbslusser-web-django
     image: ghcr.io/davidslusser/web:latest
     pull_policy: always
     build:
@@ -13,8 +13,8 @@ services:
       - "8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
-      - "traefik.http.services.dbslusser.loadbalancer.server.port=8000"
+      - "traefik.http.routers.dbslusser-web.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
+      - "traefik.http.services.dbslusser-web.loadbalancer.server.port=8000"
 
     networks:
       - default
@@ -25,7 +25,7 @@ services:
 
   db:
     image: postgres:17
-    container_name: dbslusser-postgres
+    container_name: dbslusser-web-postgres
     volumes:
       - dbslusser_postgres:/var/lib/postgresql/data
     ports:
