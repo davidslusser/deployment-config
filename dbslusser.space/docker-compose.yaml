@@ -13,7 +13,7 @@ services:
       - "8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.com`) || Host(`www.dbslusser.com`)"
+      - "traefik.http.routers.dbslusser.rule=Host(`dbslusser.space`) || Host(`www.dbslusser.space`)"
       - "traefik.http.services.dbslusser.loadbalancer.server.port=8000"
 
     networks:
