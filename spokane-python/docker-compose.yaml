@@ -13,7 +13,7 @@ services:
       - "8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.spokanepython.rule=Host(`davidslusser.website`) || Host(`www.davidslusser.website`)"
+      - "traefik.http.routers.spokanepython.rule=Host(`spokanepython.com`) || Host(`www.spokanepython.com`)"
       - "traefik.http.services.spokanepython.loadbalancer.server.port=8000"
 
     networks:
