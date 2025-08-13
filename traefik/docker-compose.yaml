@@ -22,13 +22,13 @@ services:
       - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.asDefault=true 
       - --certificatesresolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
-      - --certificatesresolvers.myresolver.acme.email=dbslusser@gmail.com
+      - --certificatesresolvers.myresolver.acme.email=${EMAIL_ADDRESS}
       - --entrypoints.websecure.http.tls.certresolver=myresolver
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
 
     labels:
       - traefik.enable=true
-      - traefik.http.routers.traefik.rule=Host(`traefik.davidslusser.website`)
+      - traefik.http.routers.traefik.rule=Host(`${DASHBOARD_DNS}`)
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.routers.traefik.tls.certresolver=myresolver
       - traefik.http.routers.traefik.middlewares=traefik-auth@docker
