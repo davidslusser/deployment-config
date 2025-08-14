@@ -1,0 +1,41 @@
+services:
+  django:
+    container_name: ${APP_NAME}-django
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    pull_policy: always
+    command: "${DJANGO_STARTUP_COMMAND}"
+    expose:
+      - "${DJANGO_PORT}"
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_DNS}`) || Host(`www.${APP_DNS}`)
+      - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${DJANGO_PORT}
+      - traefik.http.routers.${APP_NAME}.entrypoints=websecure
+      - traefik.http.routers.${APP_NAME}.tls.certresolver=${CERT_RESOLVER}
+    networks:
+      - default
+      - proxy
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    container_name: ${APP_NAME}-postgres
+    volumes:
+      - ./data/${POSTGRES_VOLUME_NAME}:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    env_file:
+      - .env
+    networks:
+      - default
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+  proxy:
+    name: proxy
