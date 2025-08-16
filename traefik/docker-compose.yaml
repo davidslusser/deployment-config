@@ -31,14 +31,14 @@ services:
       # Production
       - --certificatesresolvers.prod.acme.caServer=https://acme-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.prod.acme.email=${EMAIL_ADDRESS}
-      - --certificatesresolvers.prod.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.prod.acme.storage=/letsencrypt/prod.json
       - --certificatesresolvers.prod.acme.httpchallenge=true
       - --certificatesresolvers.prod.acme.httpchallenge.entrypoint=web
 
       # Staging
       - --certificatesresolvers.staging.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.staging.acme.email=${EMAIL_ADDRESS}
-      - --certificatesresolvers.staging.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.staging.acme.storage=/letsencrypt/staging.json
       - --certificatesresolvers.staging.acme.httpchallenge=true
       - --certificatesresolvers.staging.acme.httpchallenge.entrypoint=web
 
