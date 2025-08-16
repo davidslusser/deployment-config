@@ -1,0 +1,24 @@
+services:
+  web:
+    container_name: ${APP_NAME}
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    pull_policy: always
+    command: "${WEB_STARTUP_COMMAND}"
+    expose:
+      - "${WEB_PORT}"
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${APP_NAME}.rule=${TRAEFIK_HOST_RULE}
+      - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${WEB_PORT}
+      - traefik.http.routers.${APP_NAME}.entrypoints=websecure
+      - traefik.http.routers.${APP_NAME}.tls.certresolver=${CERT_RESOLVER}
+      - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - proxy
+    restart: unless-stopped
+
+networks:
+  proxy:
+    name: proxy
