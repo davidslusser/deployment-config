@@ -1,6 +1,5 @@
 services:
   django:
-    container_name: ${APP_NAME}-django
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     pull_policy: always
     command: "${DJANGO_STARTUP_COMMAND}"
@@ -14,6 +13,7 @@ services:
       - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${DJANGO_PORT}
       - traefik.http.routers.${APP_NAME}.entrypoints=websecure
       - traefik.http.routers.${APP_NAME}.tls.certresolver=${CERT_RESOLVER}
+      - com.centurylinklabs.watchtower.enable=true
     networks:
       - default
       - proxy

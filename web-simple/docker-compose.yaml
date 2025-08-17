@@ -1,6 +1,5 @@
 services:
   web:
-    container_name: ${APP_NAME}
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     pull_policy: always
     command: "${WEB_STARTUP_COMMAND}"
