@@ -35,3 +35,4 @@ Thumbs.db
 *.tmp
 local_test
 config.json
+django-full/data

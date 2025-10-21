@@ -1,0 +1,105 @@
+services:
+  django:
+    container_name: ${APP_NAME}-django
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    pull_policy: always
+    command: "${DJANGO_STARTUP_COMMAND}"
+    expose:
+      - "${DJANGO_PORT}"
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${APP_NAME}.rule=${TRAEFIK_HOST_RULE}
+      - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${DJANGO_PORT}
+      - traefik.http.routers.${APP_NAME}.entrypoints=websecure
+      - traefik.http.routers.${APP_NAME}.tls.certresolver=${CERT_RESOLVER}
+      - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - default
+      - proxy
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    container_name: ${APP_NAME}-postgres
+    image: postgres:17
+    volumes:
+      - ./data/${POSTGRES_VOLUME_NAME}:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    env_file:
+      - .env
+    networks:
+      - default
+    restart: unless-stopped
+
+  redis:
+    container_name: ${APP_NAME}-redis
+    image: redis:7.2-alpine
+    env_file:
+      - .env
+    restart: unless-stopped
+    command: sh -c 'redis-server --requirepass "$REDIS_PASSWORD" --maxmemory 1gb --maxmemory-policy allkeys-lru --protected-mode no'
+    environment:
+      - TZ=UTC
+    volumes:
+      - ./data/${REDIS_VOLUME_NAME}:/var/lib/redis/data
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  worker:
+    container_name: ${APP_NAME}-worker
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    pull_policy: always
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: celery -A core worker -l info
+    depends_on:
+      - redis
+      - db
+    networks:
+      - default
+
+  beat:
+    container_name: ${APP_NAME}-beat
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    pull_policy: always
+    env_file:
+      - .env
+    command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - redis
+      - db
+    networks:
+      - default
+
+  flower:
+    container_name: ${APP_NAME}-flower
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    pull_policy: always
+    env_file:
+      - .env
+    command: celery -A core --config=flowerconfig.py flower
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - db
+    networks:
+      - default
+      - proxy
+
+networks:
+  default:
+    driver: bridge
+  proxy:
+    name: proxy
