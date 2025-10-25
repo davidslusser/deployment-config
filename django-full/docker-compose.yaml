@@ -89,14 +89,21 @@ services:
     env_file:
       - .env
     command: celery -A core --config=flowerconfig.py flower
-    ports:
-      - "5555:5555"
-    depends_on:
-      - redis
-      - db
+    expose:
+      - "5555"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${APP_NAME}-flower.rule=${TRAEFIK_HOST_RULE_FLOWER}
+      - traefik.http.services.${APP_NAME}-flower.loadbalancer.server.port=5555
+      - traefik.http.routers.${APP_NAME}-flower.entrypoints=websecure
+      - traefik.http.routers.${APP_NAME}-flower.tls.certresolver=${CERT_RESOLVER}
     networks:
       - default
       - proxy
+    depends_on:
+      - redis
+      - db
+    restart: unless-stopped
 
 networks:
   default:
