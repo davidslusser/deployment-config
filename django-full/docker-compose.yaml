@@ -66,6 +66,8 @@ services:
     depends_on:
       - redis
       - db
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     networks:
       - default
 
@@ -79,6 +81,8 @@ services:
     depends_on:
       - redis
       - db
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     networks:
       - default
 
@@ -97,6 +101,7 @@ services:
       - traefik.http.services.${APP_NAME}-flower.loadbalancer.server.port=5555
       - traefik.http.routers.${APP_NAME}-flower.entrypoints=websecure
       - traefik.http.routers.${APP_NAME}-flower.tls.certresolver=${CERT_RESOLVER}
+      - com.centurylinklabs.watchtower.enable=true
     networks:
       - default
       - proxy
